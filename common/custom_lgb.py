@@ -1,7 +1,7 @@
 import lightgbm as lgb
 
 
-def do_predict(train_data, test_data, x_pred):
+def do_predict(train_data, test_data):
     y_train = train_data['visitors']
     y_test = test_data['visitors']
     x_train = train_data.drop('visitors', axis=1)
@@ -27,9 +27,6 @@ def do_predict(train_data, test_data, x_pred):
                     valid_sets=lgb_eval,
                     verbose_eval=50,
                     early_stopping_rounds=100)
+    print('End training...')
 
-    # predict
-    print('Start predicting...')
-    y_pred = gbm.predict(x_pred, num_iteration=gbm.best_iteration)
-
-    return y_pred
+    return gbm

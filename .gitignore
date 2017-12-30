@@ -10,4 +10,5 @@
 # Packages
 *.7z
 *.zip
+*.csv
 .idea
