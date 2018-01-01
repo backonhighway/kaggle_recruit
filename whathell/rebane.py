@@ -1,24 +1,32 @@
 import numpy as np
 import pandas as pd
 
+import custom_metrics
 import custom_lgb
 
-# load data
-train = pd.read_csv('../output/cleaned_train.csv')
-predict = pd.read_csv('../output/cleaned_predict.csv')
 
-print(train.head())
-print(predict.head())
+# load data
+train = pd.read_csv('../output/fed_train.csv')
+predict = pd.read_csv('../output/fed_predict.csv')
 
 # make input
 train['visitors'] = np.log1p(train['visitors'])
-train_input = train[ (train['visit_date_str'] >= '2016-01-01') & (train['visit_date_str'] < '2016-12-01') ].reset_index(drop=True)
-test_input = train[ (train['visit_date_str'] >= '2017-03-01') & (train['visit_date_str'] < '2017-04-01') ].reset_index(drop=True)
+train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
+test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
 
-col = ['air_store_num', 'visitors', 'dow', 'holiday_flg', 'air_genre_num', 'air_area_num']
+col = ['air_store_num', 'visitors', 'dow', 'holiday_flg', 'air_genre_num', 'air_area_num',
+       'year', 'month', 'min', 'max', 'median', 'mean',
+       '3month_min', '3month_max', '3month_median', '3month_mean',
+       '6month_min', '6month_max', '6month_median', '6month_mean',
+       '12month_min', '12month_max', '12month_median', '12month_mean',
+       ]
 train_input = train_input[col]
 test_input = test_input[col]
-x_pred = predict[col].drop('visitors', axis=1)
+
+print(train.count())
+print(train_input.count())
+print(test_input.count())
+exit(0)
 
 # print(train_input.head())
 # print(test_input.head())
@@ -26,16 +34,32 @@ x_pred = predict[col].drop('visitors', axis=1)
 # print('-' * 30)
 
 # fit and predict
-model = custom_lgb.do_predict(train_input, test_input, x_pred)
+model = custom_lgb.fit(train_input, test_input)
+x_pred = predict[col].drop('visitors', axis=1)
 y_pred = model.predict(x_pred, num_iteration=model.best_iteration)
 # y_pred[y_pred < 0] = 0
 y_pred = np.expm1(y_pred)
 
+
 # validate
-validate_data = train[ train['visit_date_str'] >= '2017-04-01' ].reset_index(drop=True)
+def validate(validate_data, model):
+    x_valid = validate_data[col].drop('visitors', axis=1)
+    y_valid = model.predict(x_valid, num_iteration=model.best_iteration)
+    validation_score = custom_metrics.rmse(validate_data['visitors'], y_valid)
+    print(validation_score)
 
 
+print("Validation score by six week:")
+six_week_validate_data = train[ train['visit_date'] >= '2017-03-05' ].reset_index(drop=True)
+validate(six_week_validate_data, model)
 
+print("Validation score by last week:")
+public_lb_validation_data = \
+    train[ (train['visit_date'] >= '2017-04-16') & (train['visit_date'] <= '2017-04-21')].reset_index(drop=True)
+validate(public_lb_validation_data, model)
+
+print(model.feature_name())
+print(model.feature_importance())
 # submit
 submission = pd.DataFrame({
         "id": predict['id'],
@@ -43,5 +67,4 @@ submission = pd.DataFrame({
     })
 print(submission.describe())
 submission.to_csv('../output/submission.csv',float_format='%.6f', index=False)
-
 

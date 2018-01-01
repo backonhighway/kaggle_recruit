@@ -39,9 +39,9 @@ predict = pd.merge(data['predict'], data['hol'], how='left', on=['visit_date'])
 train = pd.merge(train, data['as'], how='left', on=['air_store_id'])
 predict = pd.merge(predict, data['as'], how='left', on=['air_store_id'])
 
-train_col = ['air_store_num',  'visitors', 'visit_date', 'visit_date_str', 'dow', 'holiday_flg',
+train_col = ['air_store_num',  'visitors', 'visit_date', 'dow', 'holiday_flg',
              'air_genre_num', 'air_area_num']
-predict_col = ['id', 'air_store_num',  'visitors', 'visit_date', 'visit_date_str', 'dow', 'holiday_flg',
+predict_col = ['id', 'air_store_num',  'visitors', 'visit_date', 'dow', 'holiday_flg',
              'air_genre_num', 'air_area_num']
 
 # print(train.head())
