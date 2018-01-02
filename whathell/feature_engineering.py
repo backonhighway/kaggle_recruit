@@ -3,11 +3,25 @@ import pandas as pd
 import pandas.tseries.offsets as offsets
 
 
-def get_stats_group(df):
+def get_simple_grouped(df):
     grouped = df.groupby(["air_store_num", "year", "month"])\
         .agg({"visitors": ["min", "max", np.median, np.mean, np.std]}).reset_index()
-    grouped.columns = ["air_store_num", "prev_month_y", "prev_month_m", "min", "max", "median", "mean", "std"]
+    grouped.columns = ["air_store_num", "prev_month_y", "prev_month_m",
+                       "min", "max", "median", "mean", "std"]
 
+    return grouped
+
+
+def get_dowh_grouped(df):
+    grouped = df.groupby(["air_store_num", "year", "month", "dowh"])\
+        .agg({"visitors": ["min", "max", np.median, np.mean, np.std]}).reset_index()
+    grouped.columns = ["air_store_num", "prev_month_y", "prev_month_m", "dowh",
+                       "min", "max", "median", "mean", "std"]
+
+    return grouped
+
+
+def get_stats(grouped):
     grouped["3month_min"] = grouped["min"].rolling(3, min_periods=1).min().reset_index(drop=True)
     grouped["3month_max"] = grouped["max"].rolling(3, min_periods=1).max().reset_index(drop=True)
     grouped["3month_median"] = grouped["median"].rolling(3, min_periods=1).median().reset_index(drop=True)
@@ -31,9 +45,16 @@ def engineer(df):
     df["visit_datetime"] = pd.to_datetime(df["visit_date"])
     df["year"] = df["visit_datetime"].dt.year
     df["month"] = df["visit_datetime"].dt.month
+    df["week"] = df["visit_datetime"].dt.week
     df["prev_month"] = df["visit_datetime"] - offsets.MonthBegin(2)
     df["prev_month_y"] = df["prev_month"].dt.year
     df["prev_month_m"] = df["prev_month"].dt.month
+    df["next_week"] = df["visit_datetime"] + offsets.Week(1)
+    df["prev_week"] = df["visit_datetime"] - offsets.Week(1)
+    df["next_week"] = df["next_week"].dt.week
+    df["prev_week"] = df["prev_week"].dt.week
+
+    df["dowh"] = np.where((df["holiday_flg"] == 1) & (df["dow"] < 5), 7, df["dow"])
 
     # df["monthly_mean"] = df.groupby(["air_store_num", "month"])["visitors"].transform(np.mean)
     # df["monthly_median"] = df.groupby(["air_store_num", "month"])["visitors"].transform(np.median)
@@ -54,13 +75,19 @@ print('-' * 50)
 train = engineer(train)
 predict = engineer(predict)
 
-stats_group = get_stats_group(train)
-train = pd.merge(train, stats_group, how="left", on=["air_store_num", "prev_month_y", "prev_month_m"])
-predict = pd.merge(predict, stats_group, how="left", on=["air_store_num", "prev_month_y", "prev_month_m"])
+# set stats
+print("setting stats...")
+merge_col = ["air_store_num", "prev_month_y", "prev_month_m", "dowh"]
+train_dowh_group = get_dowh_grouped(train)
+train_dowh_group = get_stats(train_dowh_group)
+train = pd.merge(train, train_dowh_group, how="left", on=merge_col)
+predict_dowh_group = get_dowh_grouped(train)
+predict_dowh_group = get_stats(predict_dowh_group)
+predict = pd.merge(predict, predict_dowh_group, how="left", on=merge_col)
 
 # print(train.head())
 # print(predict.head())
-# exit(0)
+
 
 train.to_csv('../output/fed_train.csv',float_format='%.6f', index=False)
 predict.to_csv('../output/fed_predict.csv',float_format='%.6f', index=False)
