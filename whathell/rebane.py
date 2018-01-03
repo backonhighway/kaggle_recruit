@@ -9,17 +9,20 @@ import custom_lgb
 train = pd.read_csv('../output/fed_train.csv')
 predict = pd.read_csv('../output/fed_predict.csv')
 
+print(train.describe())
+
 # make input
 train['visitors'] = np.log1p(train['visitors'])
 train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
 test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
 
 col = ['air_store_num', 'visitors', 'air_genre_num', 'air_area_num',
-       'year', 'month', 'min', 'max', 'median', 'mean',
+       'year', 'month', 'min', 'max', 'median', 'mean', 'std',
        '3month_min', '3month_max', '3month_median', '3month_mean',
        '6month_min', '6month_max', '6month_median', '6month_mean',
        '12month_min', '12month_max', '12month_median', '12month_mean',
        'dow', 'dowh', 'holiday_flg', 'week_hols', 'next_week_hols', 'prev_week_hols',
+       'pred',
        ]
 train_input = train_input[col]
 test_input = test_input[col]

@@ -28,6 +28,10 @@ data['predict']['visit_date'] = data['predict']['visit_date'].dt.date
 data['hol']['visit_datetime'] = pd.to_datetime(data['hol']['visit_date'])
 data['hol']['visit_date'] = data['hol']['visit_datetime'].dt.date
 data['hol']["year"] = data['hol']["visit_datetime"].dt.year
+data['hol']["month"] = data['hol']["visit_datetime"].dt.month
+data['hol']["prev_month"] = data['hol']["visit_datetime"] - pd.DateOffset(months=1)
+data['hol']["prev_month_y"] = data['hol']["prev_month"].dt.year
+data['hol']["prev_month_m"] = data['hol']["prev_month"].dt.month
 data['hol']['dow'] = data['hol']['visit_datetime'].dt.dayofweek
 data['hol']["week"] = data['hol']["visit_datetime"].dt.week
 data['hol']["next_week"] = data['hol']["visit_datetime"] + offsets.Week(1)
@@ -35,14 +39,14 @@ data['hol']["prev_week"] = data['hol']["visit_datetime"] - offsets.Week(1)
 data['hol']["next_week"] = data['hol']["next_week"].dt.week
 data['hol']["prev_week"] = data['hol']["prev_week"].dt.week
 data['hol']['dowh_flg'] = np.where((data['hol']["holiday_flg"] == 1) & (data['hol']["dow"] < 5), 1, 0)
-grouped = data['hol'].groupby(["year", "week"])["dowh_flg"].sum().reset_index()  # Todo: perhaps not perfect
+grouped = data['hol'].groupby(["year", "week"])["dowh_flg"].sum().reset_index()
 grouped.columns = ["year", "week", "week_hols"]
 data['hol'] = pd.merge(data['hol'], grouped, how='left', on=["year", "week"])
 grouped.columns = ["year", "next_week", "next_week_hols"]
 data['hol'] = pd.merge(data['hol'], grouped, how='left', on=["year", "next_week"])
 grouped.columns = ["year", "prev_week", "prev_week_hols"]
 data['hol'] = pd.merge(data['hol'], grouped, how='left', on=["year", "prev_week"])
-
+data['hol']['day_delta'] = data['hol'].index
 data['as']['air_store_num'] = le.fit_transform(data['as']['air_store_id'])
 data['as']['air_genre_num'] = le.fit_transform(data['as']['air_genre_name'])
 data['as']['air_area_num'] = le.fit_transform(data['as']['air_area_name'])
@@ -52,12 +56,14 @@ predict = pd.merge(data['predict'], data['hol'], how='left', on=['visit_date'])
 train = pd.merge(train, data['as'], how='left', on=['air_store_id'])
 predict = pd.merge(predict, data['as'], how='left', on=['air_store_id'])
 
-train_col = ['air_store_num', 'visitors', 'visit_date', 'dow', 'holiday_flg',
-             'week_hols', 'next_week_hols', 'prev_week_hols',
+train_col = ['air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
+             'year', 'month', 'prev_month', 'prev_month_y', 'prev_month_m',
+             'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
              'air_genre_num', 'air_area_num']
-predict_col = ['id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'holiday_flg',
-               'week_hols', 'next_week_hols', 'prev_week_hols'
-                'air_genre_num', 'air_area_num', ]
+predict_col = ['id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
+               'year', 'month', 'prev_month', 'prev_month_y', 'prev_month_m',
+               'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
+               'air_genre_num', 'air_area_num', ]
 
 # print(train.head())
 # print(predict.head())

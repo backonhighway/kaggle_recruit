@@ -16,7 +16,8 @@ df["month"] = df["date"].dt.month
 
 # df["dow"] = df["date"].dt.dayofweek
 df["prev_date"] = df["date"] - offsets.Day(40)
-df["prev_month"] = df["date"] - offsets.MonthBegin(2)
+df["prev_month"] = df["date"] - pd.DateOffset(months=1)
+print(df)
 
 temp = df.groupby(["air_store_id", "month"]).agg({"visitors": ["min", "max"]})
 print(temp.head())
