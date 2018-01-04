@@ -10,5 +10,6 @@
 # Packages
 *.7z
 *.zip
+*.sqlite
 *.csv
 .idea

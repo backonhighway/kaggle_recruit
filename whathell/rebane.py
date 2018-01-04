@@ -6,8 +6,8 @@ import custom_lgb
 
 
 # load data
-train = pd.read_csv('../output/fed_train.csv')
-predict = pd.read_csv('../output/fed_predict.csv')
+train = pd.read_csv('../output/reg_train.csv')
+predict = pd.read_csv('../output/reg_predict.csv')
 
 print(train.describe())
 
@@ -22,7 +22,7 @@ col = ['air_store_num', 'visitors', 'air_genre_num', 'air_area_num',
        '6month_min', '6month_max', '6month_median', '6month_mean',
        '12month_min', '12month_max', '12month_median', '12month_mean',
        'dow', 'dowh', 'holiday_flg', 'week_hols', 'next_week_hols', 'prev_week_hols',
-       'pred',
+       'quarter_regress', 'year_regress'
        ]
 train_input = train_input[col]
 test_input = test_input[col]
