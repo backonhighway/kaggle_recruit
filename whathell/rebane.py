@@ -9,7 +9,6 @@ import custom_lgb
 train = pd.read_csv('../output/reg_train.csv')
 predict = pd.read_csv('../output/reg_predict.csv')
 
-print(train.describe())
 
 # make input
 train['visitors'] = np.log1p(train['visitors'])
@@ -22,7 +21,10 @@ col = ['air_store_num', 'visitors', 'air_genre_num', 'air_area_num',
        '6month_min', '6month_max', '6month_median', '6month_mean',
        '12month_min', '12month_max', '12month_median', '12month_mean',
        'dow', 'dowh', 'holiday_flg', 'week_hols', 'next_week_hols', 'prev_week_hols',
-       'quarter_regress', 'year_regress'
+       'quarter_regress', 'year_regress',
+       "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
+       "reserve_sum_hpg", "reserve_mean_hpg", "reserve_datediff_mean_hpg",
+       "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
        ]
 train_input = train_input[col]
 test_input = test_input[col]

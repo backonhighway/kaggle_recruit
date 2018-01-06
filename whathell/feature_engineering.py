@@ -53,8 +53,8 @@ def engineer(df):
 
 
 # load data
-train = pd.read_csv('../output/cleaned_train.csv')
-predict = pd.read_csv('../output/cleaned_predict.csv')
+train = pd.read_csv('../output/cleaned_res_train.csv')
+predict = pd.read_csv('../output/cleaned_res_predict.csv')
 
 print("loaded data.")
 
