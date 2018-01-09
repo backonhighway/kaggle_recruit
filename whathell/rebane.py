@@ -5,15 +5,21 @@ import custom_metrics
 import custom_lgb
 
 
+def cut_input(df, from_date, to_date):
+    ret_df = df[(df['visit_date'] >= from_date) & (df['visit_date'] < to_date)].reset_index(drop=True)
+    return ret_df
+
+
 # load data
 train = pd.read_csv('../output/reg_train.csv')
 predict = pd.read_csv('../output/reg_predict.csv')
 
-
 # make input
 train['visitors'] = np.log1p(train['visitors'])
-train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
-test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
+# train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
+# test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
+train_input = cut_input(train, "2016-01-16", "2016-11-28")
+test_input = cut_input(train, "2017-01-16", "2017-03-05")
 
 col = ['air_store_num', 'visitors', 'air_genre_num', 'air_area_num',
        'year', 'month', 'min', 'max', 'median', 'mean', 'std',
@@ -24,7 +30,7 @@ col = ['air_store_num', 'visitors', 'air_genre_num', 'air_area_num',
        'quarter_regress', 'year_regress',
        "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
        "reserve_sum_hpg", "reserve_mean_hpg", "reserve_datediff_mean_hpg",
-       "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
+       # "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
        ]
 train_input = train_input[col]
 test_input = test_input[col]
@@ -38,9 +44,8 @@ test_input = test_input[col]
 model = custom_lgb.fit(train_input, test_input)
 x_pred = predict[col].drop('visitors', axis=1)
 y_pred = model.predict(x_pred, num_iteration=model.best_iteration)
-# y_pred[y_pred < 0] = 0
 y_pred = np.expm1(y_pred)
-
+y_pred[y_pred < 1] = 1
 
 # validate
 def validate(validate_data, model):
