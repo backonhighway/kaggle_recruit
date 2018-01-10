@@ -54,7 +54,7 @@ def regress(df):
     # df = org_df[col]
     start_time = time.time()
     result_df_list = []
-    grouped = df.groupby(["air_store_num", "dowh"])
+    grouped = df.groupby(["air_store_num", "dows"])
     for name, group in grouped:
         if int(name[0]) % 10 == 0 and int(name[1]) == 0:
             print("air_store_num=", name[0])
@@ -76,15 +76,15 @@ def regress(df):
 
 
 # load data
-train = pd.read_csv('../output/fed_train.csv')
-predict = pd.read_csv('../output/fed_predict.csv')
+train = pd.read_csv('../output/proper_stats_train.csv')
+predict = pd.read_csv('../output/proper_stats_predict.csv')
 
 print("loaded data.")
 
 # set regression
 print("doing regression...")
 joined = pd.concat([train, predict]).reset_index(drop=True)
-# joined = joined[joined["air_store_num"] < 100]
+# joined = joined[joined["air_store_num"] < 10]
 joined = regress(joined)
 print("done regression...")
 train = joined[joined["visit_date"] < "2017-04-23"]
