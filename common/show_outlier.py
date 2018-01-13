@@ -4,6 +4,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+def find_outliers(series):
+    return (series - series.mean()) > 2.4 * series.std()
+
+
 # load data
 train = pd.read_csv('../output/fed_train.csv')
 predict = pd.read_csv('../output/fed_predict.csv')
@@ -22,4 +26,4 @@ print("-"*40)
 print(train.groupby("air_store_num")["visitors"].describe())
 print(out.groupby("air_store_num")["visitors"].describe())
 
-
+train['is_outlier'] = train.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'])).values

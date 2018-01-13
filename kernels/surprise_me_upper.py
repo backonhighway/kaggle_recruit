@@ -130,7 +130,7 @@ test = test.fillna(-1)
 def RMSLE(y, pred):
     return metrics.mean_squared_error(y, pred) ** 0.5
 
-
+print("start training...")
 model1 = ensemble.GradientBoostingRegressor(learning_rate=0.2, random_state=3)
 model2 = neighbors.KNeighborsRegressor(n_jobs=-1, n_neighbors=4)
 model1.fit(train[col], np.log1p(train['visitors'].values))
@@ -143,6 +143,8 @@ sub1 = test[['id', 'visitors']].copy()
 del train;
 del data;
 
+print(sub1.describe())
+sub1.to_csv('../output/submission.csv', index=False)
 
 #sub_merge = pd.merge(sub1, sub2, on='id', how='inner')
 

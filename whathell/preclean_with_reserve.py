@@ -29,6 +29,7 @@ for df in ['ar', 'hr']:
     data[df]['reserve_datetime'] = data[df]['reserve_datetime'].dt.date
     data[df]['reserve_datetime_diff'] = data[df].apply(lambda r: (r['visit_datetime'] - r['reserve_datetime']).days,
                                                        axis=1)
+    data[df] = data[df][data[df]["reserve_datetime_diff"] > 0]
     tmp1 = data[df].groupby(['air_store_id', 'visit_datetime'], as_index=False)[
         ['reserve_datetime_diff', 'reserve_visitors']].sum().rename(
         columns={'visit_datetime': 'visit_date', 'reserve_datetime_diff': 'rs1', 'reserve_visitors': 'rv1'})
@@ -110,7 +111,8 @@ hol_df = pd.read_csv("../input/date_info.csv")
 hol_df = hol_df.rename(columns={"calendar_date": "next_date", "holiday_flg": "next_holiday_flg"})
 hol_df["next_date_str"] = hol_df["next_date"].astype(str)
 
-def get_next_day_info(df, hol_df):
+
+def get_more_dow_info(df, hol_df):
     df["next_datetime"] = df["visit_datetime"].dt.date + pd.DateOffset(days=1)
     df["next_date"] = df["next_datetime"].dt.date
     df["next_date_str"] = df["next_date"].astype(str)
@@ -118,13 +120,18 @@ def get_next_day_info(df, hol_df):
     df["next_dow"] = df["next_datetime"].dt.dayofweek
     df["next_dowh"] = np.where((df["next_holiday_flg"] == 1) & (df["next_dow"] < 5), 7, df["next_dow"])
     df["next_is_hol"] = np.where((df["next_holiday_flg"] == 1) | (df["next_dow"] >= 5), 1, 0)
+
+    df["visit_datetime"] = pd.to_datetime(df["visit_date"])
+    df["dowh"] = np.where((df["holiday_flg"] == 1) & (df["dow"] < 5), 7, df["dow"])
+    df["dows"] = np.where(df["holiday_flg"] == 1, 6 - df["next_is_hol"], df["dow"])
     return df
 
-train = get_next_day_info(train, hol_df)
-predict = get_next_day_info(predict, hol_df)
+
+train = get_more_dow_info(train, hol_df)
+predict = get_more_dow_info(predict, hol_df)
 
 train_col = ['air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
-             'year', 'month', 'prev_month', 'prev_month_y', 'prev_month_m',
+             'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
              'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
              'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
              "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
@@ -133,7 +140,7 @@ train_col = ['air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
              "next_dow", "next_is_hol",
              ]
 predict_col = ['id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
-               'year', 'month', 'prev_month', 'prev_month_y', 'prev_month_m',
+               'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
                'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
                'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
                "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",

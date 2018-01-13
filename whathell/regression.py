@@ -14,12 +14,18 @@ def take_df_by_period(df, timestamp_from, timestamp_to):
     return df[(df["visit_date"] >= time_from_str) & (df["visit_date"] <= time_to_str)]
 
 
+def take_df_by_valid_period(df, timestamp_from, timestamp_to):
+    if timestamp_to.year == 2017 and timestamp_to.month == 4:
+        timestamp_to = timestamp_to.replace(day=22)
+    return take_df_by_period(df, timestamp_from, timestamp_to)
+
+
 def regress_by_store(df):
     ret_list = []
-    month_ends = pd.date_range(start='01/01/2016', end='04/01/2017', freq='M')
+    month_ends = pd.date_range(start='01/01/2016', end='05/01/2017', freq='M')
     for month_end in month_ends:
         quarter_start = month_end - offsets.MonthBegin(3)
-        quarter_df = take_df_by_period(df, quarter_start, month_end)
+        quarter_df = take_df_by_valid_period(df, quarter_start, month_end)
         if quarter_df.empty:
             continue
         next_month_start = month_end + offsets.MonthBegin(1)
@@ -30,7 +36,7 @@ def regress_by_store(df):
         quarter_y_pred = do_regression(quarter_df, next_month_df)
 
         year_start = month_end - offsets.MonthBegin(12)
-        year_df = take_df_by_period(df, year_start, month_end)
+        year_df = take_df_by_valid_period(df, year_start, month_end)
         year_y_pred = do_regression(year_df, next_month_df)
 
         temp_df = pd.DataFrame(index=next_month_df.index)
@@ -84,11 +90,16 @@ print("loaded data.")
 # set regression
 print("doing regression...")
 joined = pd.concat([train, predict]).reset_index(drop=True)
-# joined = joined[joined["air_store_num"] < 10]
+# joined = joined[joined["air_store_num"] == 5]
 joined = regress(joined)
+
+# debug_df = joined[joined["visit_date"] >= "2017-04-01"]
+# print(debug_df[["visit_date","quarter_regress"]].head(60))
+
 print("done regression...")
 train = joined[joined["visit_date"] < "2017-04-23"]
 predict = joined[joined["visit_date"] >= "2017-04-23"]
+# print(predict[["visit_date","quarter_regress"]].head(30))
 # print(train.shape)
 # print(train.isnull().sum())
 # print(predict.shape)
