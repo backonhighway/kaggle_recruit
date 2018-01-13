@@ -1,28 +1,34 @@
 import custom_lgb
 
 
-def split_train(df, period_list):
+def split_train(splitted_df):
     models = []
     score = 0.0
-    for period in period_list:
-        model = split_fit(df, period[0], period[1], period[2], period[3])
+    for split_df in splitted_df:
+        train = split_df[0]
+        test = split_df[1]
+        model = custom_lgb.fit(train, test)
         score = score + model.best_score.get('valid_0').get('rmse')
         models.append(model)
-    score = score / len(period_list)
-    print("Average score= " + str(score))
+    score = score / len(splitted_df)
+    print("Average score:")
+    print(score)
 
-    return models, score
+    return models
 
 
-def split_fit(df, train_from, train_to, test_from, test_to):
-    train_input = df[
-        (df['visit_date_str'] >= train_from) & (df['visit_date_str'] < train_to)].reset_index(drop=True)
-    test_input = df[
-        (df['visit_date_str'] >= test_from) & (df['visit_date_str'] < test_to)].reset_index(drop=True)
+def split_set(df, period_list, col):
+    splits = []
+    for period in period_list:
+        train_input = cut_input(df, period[0], period[1])
+        test_input = cut_input(df,  period[2], period[3])
+        train_input = train_input[col]
+        test_input = test_input[col]
+        splits.append([train_input, test_input])
 
-    col = ['air_store_num', 'visitors', 'dow', 'holiday_flg', 'air_genre_num', 'air_area_num']
-    train_input = train_input[col]
-    test_input = test_input[col]
+    return splits
 
-    model = custom_lgb.fit(train_input, test_input)
-    return model
+
+def cut_input(df, from_date, to_date):
+    ret_df = df[(df['visit_date'] >= from_date) & (df['visit_date'] <= to_date)].reset_index(drop=True)
+    return ret_df

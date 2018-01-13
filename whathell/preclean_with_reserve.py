@@ -130,23 +130,23 @@ def get_more_dow_info(df, hol_df):
 train = get_more_dow_info(train, hol_df)
 predict = get_more_dow_info(predict, hol_df)
 
-train_col = ['air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
+train_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
              'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
              'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
              'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
              "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
              "reserve_sum_hpg", "reserve_mean_hpg", "reserve_datediff_mean_hpg",
              "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
-             "next_dow", "next_is_hol",
+             "next_dow", "next_is_hol", "dowh", "dows"
              ]
-predict_col = ['id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
+predict_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
                'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
                'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
                'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
                "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
                "reserve_sum_hpg", "reserve_mean_hpg", "reserve_datediff_mean_hpg",
                "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
-               "next_dow", 'next_is_hol',
+               "next_dow", 'next_is_hol', "dowh", "dows"
                ]
 
 # print(train.head())
@@ -155,5 +155,5 @@ predict_col = ['id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delt
 train = train[train_col]
 predict = predict[predict_col]
 
-train.to_csv('../output/cleaned_res_train.csv', float_format='%.6f', index=False)
-predict.to_csv('../output/cleaned_res_predict.csv', float_format='%.6f', index=False)
+train.to_csv('../output/c_train.csv', float_format='%.6f', index=False)
+predict.to_csv('../output/c_predict.csv', float_format='%.6f', index=False)

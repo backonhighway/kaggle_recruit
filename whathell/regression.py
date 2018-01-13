@@ -82,8 +82,8 @@ def regress(df):
 
 
 # load data
-train = pd.read_csv('../output/proper_stats_train.csv')
-predict = pd.read_csv('../output/proper_stats_predict.csv')
+train = pd.read_csv('../output/cws_train.csv')
+predict = pd.read_csv('../output/cws_predict.csv')
 
 print("loaded data.")
 
@@ -107,5 +107,5 @@ predict = joined[joined["visit_date"] >= "2017-04-23"]
 
 
 print("output to csv...")
-train.to_csv('../output/reg_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/reg_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/cwsr_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/cwsr_predict.csv',float_format='%.6f', index=False)

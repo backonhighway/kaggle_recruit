@@ -90,17 +90,31 @@ def get_change_rate(df):
     df["dow_change_median_3_13"] = get_int_percentage(df["dow_moving_median_3"], df["dow_moving_median_13"])
 
 
+def calc_ewm(series, alpha, adjust=True):
+    return series.ewm(alpha=alpha, adjust=adjust).mean()
+
+
+def get_ewm(df):
+    grouped = df.groupby(["air_store_num", "dows"])["visitors"]
+    df["ewm"] = grouped.transform(lambda g: calc_ewm(g, 0.1).shift(1))
+    return df
+
+
 # load data
-train = pd.read_csv('../output/cleaned_res_train.csv')
-predict = pd.read_csv('../output/cleaned_res_predict.csv')
+train = pd.read_csv('../output/cw_train.csv')
+predict = pd.read_csv('../output/cw_predict.csv')
 predict["visitors"] = np.NaN
 
 print("loaded data.")
 joined = pd.concat([train, predict]).reset_index(drop=True)
 
-# joined = joined[joined["air_store_num"] < 3]
+# joined = joined[joined["air_store_num"] == 4]
+# df = df[["air_store_num", "visitors", "visit_date", "ewm"]]
+# print(df.tail(90))
+
 # set stats
 print("setting stats...")
+joined = get_ewm(joined)
 joined = get_stats(joined)
 get_change_rate(joined)
 
@@ -117,6 +131,6 @@ predict = joined[joined["visit_date"] >= "2017-04-23"]
 # print(predict.head())
 
 print("output to csv...")
-train.to_csv('../output/proper_stats_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/proper_stats_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/cws_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/cws_predict.csv',float_format='%.6f', index=False)
 
