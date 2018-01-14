@@ -50,6 +50,7 @@ data['hol']['visit_datetime'] = pd.to_datetime(data['hol']['visit_date'])
 data['hol']['visit_date'] = data['hol']['visit_datetime'].dt.date
 data['hol']["year"] = data['hol']["visit_datetime"].dt.year
 data['hol']["month"] = data['hol']["visit_datetime"].dt.month
+data['hol']["day"] = data['hol']["visit_datetime"].dt.day
 data['hol']["prev_month"] = data['hol']["visit_datetime"] - pd.DateOffset(months=1)
 data['hol']["prev_month_y"] = data['hol']["prev_month"].dt.year
 data['hol']["prev_month_m"] = data['hol']["prev_month"].dt.month
@@ -137,7 +138,7 @@ train_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 'd
              "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
              "reserve_sum_hpg", "reserve_mean_hpg", "reserve_datediff_mean_hpg",
              "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
-             "next_dow", "next_is_hol", "dowh", "dows"
+             "next_dow", "next_is_hol", "dowh", "dows", "day",
              ]
 predict_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
                'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
@@ -146,7 +147,7 @@ predict_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 
                "reserve_sum_air", "reserve_mean_air", "reserve_datediff_mean_air",
                "reserve_sum_hpg", "reserve_mean_hpg", "reserve_datediff_mean_hpg",
                "total_reserve_sum", 'total_reserve_mean', 'total_reserve_dt_diff_mean',
-               "next_dow", 'next_is_hol', "dowh", "dows"
+               "next_dow", 'next_is_hol', "dowh", "dows", "day"
                ]
 
 # print(train.head())
