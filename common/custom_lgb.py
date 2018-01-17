@@ -8,7 +8,7 @@ def fit(train_data, test_data):
     x_test = test_data.drop('visitors', axis=1)
 
     cat_col = ["air_store_num", "dow", "dowh", "dows", "air_genre_num", "air_area_num",
-               "year", "month", "week",
+               "year", "month", "week", "day",
                "prefecture_num", "city_num",]
 
     lgb_train = lgb.Dataset(x_train, y_train)

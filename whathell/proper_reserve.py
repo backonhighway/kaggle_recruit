@@ -111,12 +111,12 @@ def get_total_info(df):
 air_reserve_df = pd.read_csv('../input/air_reserve.csv')
 hpg_reserve_df = pd.read_csv('../input/hpg_reserve.csv')
 relation_df = pd.read_csv('../input/store_id_relation.csv')
-train = pd.read_csv('../output/cw_train.csv')
-predict = pd.read_csv('../output/cw_predict.csv')
+train = pd.read_csv('../output/cws_train.csv')
+predict = pd.read_csv('../output/cws_predict.csv')
 print("Loaded data.")
 hpg_reserve_df = pd.merge(hpg_reserve_df, relation_df, how='inner', on=['hpg_store_id'])
-air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
-hpg_reserve_df = hpg_reserve_df[hpg_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
+# air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
+# hpg_reserve_df = hpg_reserve_df[hpg_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
 # print(air_reserve_df.head())
 
 air_reserve_df = prepare(air_reserve_df)
@@ -140,11 +140,15 @@ hpg_reserve_df.fillna(0)
 # print(air_reserve_df.head())
 
 joined = pd.concat([train, predict])
-joined = joined[joined["air_store_id"] == "air_6b15edd1b4fbb96a"]
+# joined = joined[joined["air_store_id"] == "air_6b15edd1b4fbb96a"]
 
-#joined["visit_datetime"] = pd.to_datetime(joined["visit_date"])
-#joined["visit_date"] = joined["visit_datetime"].dt.date
+# joined["visit_datetime"] = pd.to_datetime(joined["visit_date"])
+# joined["visit_date"] = joined["visit_datetime"].dt.date
 # print(joined.head())
+
+print("Now merging...")
+# Make sure that every open day with no reserve is filled with 0
+
 
 joined = pd.merge(joined, air_reserve_df, on=["air_store_id", "visit_date"], how="left")
 joined = pd.merge(joined, hpg_reserve_df, on=["air_store_id", "visit_date"], how="left")
@@ -161,8 +165,8 @@ train = joined[joined["visit_date"] < "2017-04-23"]
 predict = joined[joined["visit_date"] >= "2017-04-23"]
 
 print("output to csv...")
-train.to_csv('../output/cwr_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/cwr_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/cwsv_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/cwsv_predict.csv',float_format='%.6f', index=False)
 
 
 
