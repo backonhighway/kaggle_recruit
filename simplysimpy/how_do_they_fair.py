@@ -11,7 +11,7 @@ train = train[use_col]
 train["log_visitors"] = np.log1p(train["visitors"])
 train["log_visitors_nan"] = np.where(train["visit_date"] <= "2017-03-04", train["log_visitors"], np.NaN)
 train["visitors_nan"] = np.where(train["visit_date"] <= "2017-03-04", train["visitors"], np.NaN)
-q_train = train[train["visit_date"] >= "2016-11-04"]
+# train = train[train["air_store_num"] <= 3]
 
 for weekly_df in pocket_periods.get_six_week_df_list(train):
     print(weekly_df["log_visitors"].describe())
@@ -61,13 +61,12 @@ def get_ewm(df):
 
 # ewm
 print("Validate ewm...")
-'''
 train = get_ewm(train)
 # train = train[train["air_store_num"].isin([417, 736, 447]) == False]
 pocket_ez_validator.validate(train, "log_visitors", "log_ewm", verbose=True)
 train["ewm"] = np.log1p(train["ewm"])
 pocket_ez_validator.validate(train, "log_visitors", "ewm")
-'''
+
 
 # rolling average
 def get_rolling_means(df):
@@ -87,12 +86,20 @@ def get_filled_rolling(df: pd.DataFrame, col_name_list):
         df[next_col_name] = grouped.transform(lambda x: x.fillna(method="ffill"))
     return df
 
+
 print("Validate rolling...")
 col_list = ["dow_roll_mean1", "dow_roll_mean5", "dow_roll_mean15", "dow_roll_mean55"]
 train = get_rolling_means(train)
 train = get_filled_rolling(train, col_list)
+
+train.dropna(axis=0, subset=["dow_roll_mean1_nan"], inplace=True)
+print(train["air_store_num"].nunique())
+
 # print(train.tail(20))
-pocket_ez_validator.validate(train, "log_visitors", "ewm")
+for col in col_list:
+    pocket_ez_validator.validate(train, "log_visitors", col)
+    next_col = col + "_nan"
+    pocket_ez_validator.validate(train, "log_visitors", next_col)
 
 
 

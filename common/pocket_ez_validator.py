@@ -15,7 +15,7 @@ def validate(df, actual_col_name, validate_col_name, period_list=None, verbose=F
             print("score from ", period_from, " to ", period_to, " is:")
             print(validation_score)
 
-    print("average score is:")
+    print("average score for", validate_col_name, " is:")
     average_score = sum(score_list) / float(len(score_list))
     print(average_score)
     print("-" * 40)

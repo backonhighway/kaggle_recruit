@@ -3,9 +3,6 @@ import pandas as pd
 import numpy as np
 import time
 import pandas.tseries.offsets as offsets
-import sqlite3
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 def take_df_by_period(df, timestamp_from, timestamp_to):

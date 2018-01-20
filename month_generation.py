@@ -1,6 +1,13 @@
 import pandas as pd
 import pandas.tseries.offsets as offsets
 
+week_ends = pd.date_range(start='01/02/2017', end='05/01/2017', freq='W')
+print(week_ends)
+print(week_ends[16] + offsets.Week(1))
+
+exit(0)
+
+
 month_ends = pd.date_range(start='01/01/2016', end='05/01/2017', freq='M')
 print(month_ends[15].replace(day=22))
 print(month_ends[15])
