@@ -75,26 +75,46 @@ def get_ewm(df):
 
 def rename_col(df, prefix):
     base_col = ["air_store_id", "visit_date"]
-    rename_col = [
+    res_col = [
         "r_sum0", "r_median0", "r_mean0", "r_date_diff_median0", "r_date_diff_mean0",
         "r_sum7", "r_median7", "r_mean7", "r_date_diff_median7", "r_date_diff_mean7",
         "r_sum0_shifted", "r_median0_shifted", "r_mean0_shifted",
         "r_date_diff_median0_shifted", "r_date_diff_mean0_shifted",
-        "r_sum7_shifted", "r_median7_shifted", "r_mean7_shifted",
-        "r_date_diff_median7_shifted", "r_date_diff_mean7_shifted",
         "dow_r_sum0_shifted", "dow_r_median0_shifted", "dow_r_mean0_shifted",
         "dow_r_date_diff_median0_shifted", "dow_r_date_diff_mean0_shifted",
-        "dow_r_sum7_shifted", "dow_r_median7_shifted", "dow_r_mean7_shifted",
-        "dow_r_date_diff_median7_shifted", "dow_r_date_diff_mean7_shifted",
     ]
-    n_col = [prefix + s for s in rename_col]
-    base_col.extend(n_col)
+    now_col = base_col + res_col
+    print(now_col)
+    df = df[now_col]
 
-    return df[base_col]
+    next_res_col = [prefix + s for s in res_col]
+    next_col = base_col + next_res_col
+    print(next_col)
+    df.columns = next_col
+
+    return df
+
+
+def fill_reserves(df):
+    res_col = [
+        "r_sum0", "r_median0", "r_mean0", "r_date_diff_median0", "r_date_diff_mean0",
+        "r_sum7", "r_median7", "r_mean7", "r_date_diff_median7", "r_date_diff_mean7",
+        "r_sum0_shifted", "r_median0_shifted", "r_mean0_shifted",
+        "r_date_diff_median0_shifted", "r_date_diff_mean0_shifted",
+        "dow_r_sum0_shifted", "dow_r_median0_shifted", "dow_r_mean0_shifted",
+        "dow_r_date_diff_median0_shifted", "dow_r_date_diff_mean0_shifted",
+    ]
+    air_col = ["air_" + s for s in res_col]
+    hpg_col = ["hpg_" + s for s in res_col]
+    df[air_col].fillna(0)
+    df[hpg_col].fillna(0)
+    return df
 
 
 def get_total_info(df):
-    df["total_reserve7"] = df["sum7_air"] + df["sum7_hpg"]
+    df["total_r_sum0_shifted"] = df["air_r_sum0_shifted"] + df["hpg_r_sum0_shifted"]
+    df["total_dow_r_sum0_shifted"] = df["air_dow_r_sum0_shifted"] + df["hpg_dow_r_sum0_shifted"]
+    df["total_r_sum7"] = df["air_r_sum7"] + df["hpg_r_sum7"]
     return df
 
 
@@ -105,8 +125,8 @@ train = pd.read_csv('../output/w2_cwrrs_train.csv')
 predict = pd.read_csv('../output/w2_cwrrs_predict.csv')
 print("Loaded data.")
 hpg_reserve_df = pd.merge(hpg_reserve_df, relation_df, how='inner', on=['hpg_store_id'])
-air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
-hpg_reserve_df = hpg_reserve_df[hpg_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
+#air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
+#hpg_reserve_df = hpg_reserve_df[hpg_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
 # print(air_reserve_df.head())
 
 air_reserve_df = prepare(air_reserve_df)
@@ -138,6 +158,7 @@ joined = pd.merge(joined, hpg_reserve_df, on=["air_store_id", "visit_date"], how
 joined = get_total_info(joined)
 #joined = get_ewm_reserve(joined)
 
+
 # pd.set_option('display.width', 240)
 # pd.set_option('display.max_columns', None)
 print(joined.describe())
@@ -147,8 +168,8 @@ train = joined[joined["visit_date"] < "2017-04-23"]
 predict = joined[joined["visit_date"] >= "2017-04-23"]
 
 print("output to csv...")
-train.to_csv('../output/cwsv_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/cwsv_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/w2_cwrrsr_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/w2_cwrrsr_predict.csv',float_format='%.6f', index=False)
 
 
 
