@@ -10,6 +10,7 @@ def prepare(df):
     df['reserve_datetime'] = pd.to_datetime(df['reserve_datetime'])
     df['reserve_date'] = df['reserve_datetime'].dt.date
     df['reserve_datetime_diff'] = df.apply(lambda r: (r['visit_date'] - r['reserve_date']).days, axis=1)
+    df = df[df["reserve_datetime_diff"] >= 7]
     return df
 
 
@@ -26,13 +27,12 @@ hpg_reserve_df = pd.merge(hpg_reserve_df, relation_df, how='inner', on=['hpg_sto
 air_reserve_df = prepare(air_reserve_df)
 hpg_reserve_df = prepare(hpg_reserve_df)
 
-print(air_reserve_df.describe(include="all"))
-print(hpg_reserve_df.describe(include="all"))
-
+print(air_reserve_df["reserve_datetime_diff"].describe(include="all"))
+print(hpg_reserve_df["reserve_datetime_diff"].describe(include="all"))
+exit(0)
 print("showing graph...")
-sns.countplot(x="visit_date", data=air_reserve_df)
+sns.countplot(x="reserve_datetime_diff", data=air_reserve_df)
 plt.show()
 
 all_reserve = pd.concat([air_reserve_df, hpg_reserve_df])
-
-print(all_reserve.describe(include="all"))
+print(all_reserve["reserve_datetime_diff"].describe(include="all"))

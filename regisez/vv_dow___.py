@@ -15,11 +15,9 @@ train["log_visitors"] = np.log1p(train["visitors"])
 last_train_date = "2017-03-18"
 train["log_visitors_nan"] = np.where(train["visit_date"] <= last_train_date, train["log_visitors"], np.NaN)
 train["visitors_nan"] = np.where(train["visit_date"] <= last_train_date, train["visitors"], np.NaN)
-# train = train[train["air_store_num"] <= 2]
+train = train[train["air_store_num"] <= 2]
 dummy = pd.get_dummies(train["dows"])
-dummy.columns = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 train = train.join(dummy)
-
 
 def take_df_by_period(df: pd.DataFrame, timestamp_from, timestamp_to):
     time_from_str = timestamp_from.strftime('%Y-%m-%d')
@@ -29,7 +27,7 @@ def take_df_by_period(df: pd.DataFrame, timestamp_from, timestamp_to):
 
 def do_regression(train_df, predict_df, models):
     pred_list = []
-    column_x = ["day_delta", "mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+    column_x = ["day_delta", "0", "1", "2", "3", "4", "5", "6"]
     x_train = pd.DataFrame(train_df[column_x])
     y_train = pd.DataFrame(train_df["log_visitors"])
     x_pred = pd.DataFrame(predict_df[column_x])
@@ -81,6 +79,7 @@ def regress(df):
     start_time = time.time()
     result_df_list = []
     grouped = df.groupby("air_store_num")
+    print(grouped)
     for name, group in grouped:
         if int(name) % 10 == 0:
         # if int(name[0]) % 10 == 0 and int(name[1]) == 0:
