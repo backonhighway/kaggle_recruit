@@ -3,7 +3,7 @@ import numpy as np
 import lolpy
 
 
-SHIFT_WEEKS = 2
+SHIFT_WEEKS = 5
 
 
 def prepare(df):
@@ -22,15 +22,24 @@ def feature(df):
     temp00 = df.groupby(["air_store_id", "visit_date"])["reserve_datetime_diff"].agg({np.mean, np.median}).reset_index()
     temp00.columns = ["air_store_id", "visit_date", "r_date_diff_median0", "r_date_diff_mean0"]
 
-    df7 = df[df["reserve_datetime_diff"] >= 7]
+    df7 = df[df["reserve_datetime_diff"] >= 7 * SHIFT_WEEKS]
     temp7 = df7.groupby(["air_store_id", "visit_date"])["reserve_visitors"].agg({np.mean, np.sum, np.median}).reset_index()
     temp7.columns = ["air_store_id", "visit_date", "r_median7", "r_sum7", "r_mean7"]
     temp77 = df7.groupby(["air_store_id", "visit_date"])["reserve_datetime_diff"].agg({np.mean, np.median}).reset_index()
     temp77.columns = ["air_store_id", "visit_date", "r_date_diff_median7", "r_date_diff_mean7"]
 
+    leak_week = SHIFT_WEEKS - 1
+    df7l = df[df["reserve_datetime_diff"] >= 7 * leak_week]
+    temp7l = df7l.groupby(["air_store_id", "visit_date"])["reserve_visitors"].agg({np.mean, np.sum, np.median}).reset_index()
+    temp7l.columns = ["air_store_id", "visit_date", "r_median7l", "r_sum7l", "r_mean7l"]
+    temp77l = df7l.groupby(["air_store_id", "visit_date"])["reserve_datetime_diff"].agg({np.mean, np.median}).reset_index()
+    temp77l.columns = ["air_store_id", "visit_date", "r_date_diff_median7l", "r_date_diff_mean7l"]
+
     df = pd.merge(temp0, temp00, on=["air_store_id", "visit_date"], how="left")
     df7 = pd.merge(temp7, temp77, on=["air_store_id", "visit_date"], how="left")
+    df7l = pd.merge(temp7l, temp77l, on=["air_store_id", "visit_date"], how="left")
     df = pd.merge(df, df7, on=["air_store_id", "visit_date"], how="left")
+    df = pd.merge(df, df7l, on=["air_store_id", "visit_date"], how="left")
 
     df["datetime"] = pd.to_datetime(df['visit_date'])
     df["dow"] = df["datetime"].dt.dayofweek
@@ -78,6 +87,7 @@ def rename_col(df, prefix):
     res_col = [
         "r_sum0", "r_median0", "r_mean0", "r_date_diff_median0", "r_date_diff_mean0",
         "r_sum7", "r_median7", "r_mean7", "r_date_diff_median7", "r_date_diff_mean7",
+        "r_sum7l", "r_median7l", "r_mean7l", "r_date_diff_median7l", "r_date_diff_mean7l",
         "r_sum0_shifted", "r_median0_shifted", "r_mean0_shifted",
         "r_date_diff_median0_shifted", "r_date_diff_mean0_shifted",
         "dow_r_sum0_shifted", "dow_r_median0_shifted", "dow_r_mean0_shifted",
@@ -99,6 +109,7 @@ def fill_reserves(df):
     res_col = [
         "r_sum0", "r_median0", "r_mean0", "r_date_diff_median0", "r_date_diff_mean0",
         "r_sum7", "r_median7", "r_mean7", "r_date_diff_median7", "r_date_diff_mean7",
+        "r_sum7l", "r_median7l", "r_mean7l", "r_date_diff_median7l", "r_date_diff_mean7l",
         "r_sum0_shifted", "r_median0_shifted", "r_mean0_shifted",
         "r_date_diff_median0_shifted", "r_date_diff_mean0_shifted",
         "dow_r_sum0_shifted", "dow_r_median0_shifted", "dow_r_mean0_shifted",
@@ -115,14 +126,15 @@ def get_total_info(df):
     df["total_r_sum0_shifted"] = df["air_r_sum0_shifted"] + df["hpg_r_sum0_shifted"]
     df["total_dow_r_sum0_shifted"] = df["air_dow_r_sum0_shifted"] + df["hpg_dow_r_sum0_shifted"]
     df["total_r_sum7"] = df["air_r_sum7"] + df["hpg_r_sum7"]
+    df["total_r_sum7l"] = df["air_r_sum7l"] + df["hpg_r_sum7l"]
     return df
 
 
 air_reserve_df = pd.read_csv('../input/air_reserve.csv')
 hpg_reserve_df = pd.read_csv('../input/hpg_reserve.csv')
 relation_df = pd.read_csv('../input/store_id_relation.csv')
-train = pd.read_csv('../output/w2_cwrrs_train.csv')
-predict = pd.read_csv('../output/w2_cwrrs_predict.csv')
+train = pd.read_csv('../output/w5_cwrrs_train.csv')
+predict = pd.read_csv('../output/w5_cwrrs_predict.csv')
 print("Loaded data.")
 hpg_reserve_df = pd.merge(hpg_reserve_df, relation_df, how='inner', on=['hpg_store_id'])
 #air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
@@ -168,8 +180,8 @@ train = joined[joined["visit_date"] < "2017-04-23"]
 predict = joined[joined["visit_date"] >= "2017-04-23"]
 
 print("output to csv...")
-train.to_csv('../output/w2_cwrrsr_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/w2_cwrrsr_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/w5_cwrrsr_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/w5_cwrrsr_predict.csv',float_format='%.6f', index=False)
 
 
 

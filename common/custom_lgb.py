@@ -29,10 +29,10 @@ def fit(train_data, test_data):
     print('Start training...')
     gbm = lgb.train(params,
                     lgb_train,
-                    num_boost_round=2000,
+                    num_boost_round=5000,
                     valid_sets=lgb_eval,
                     verbose_eval=50,
-                    early_stopping_rounds=400,
+                    early_stopping_rounds=200,
                     categorical_feature=cat_col)
     print('End training...')
 

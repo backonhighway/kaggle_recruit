@@ -13,7 +13,7 @@ import pocket_periods
 train = pd.read_csv('../output/all_cwrrm_train.csv')
 predict = pd.read_csv('../output/all_cwrrm_predict.csv')
 
-train = train[train["first_appear"] <= "2016-12-31"]
+#train = train[train["first_appear"] <= "2016-12-31"]
 #train = train[(train["first_appear"] <= "2016-12-31") & (train["first_appear"] >= "2016-03-05")]
 
 
@@ -100,10 +100,10 @@ ez_col = [
 # fit and predict
 # model = custom_lgb.fit(train_input, test_input)
 period_list = [#["2016-01-16", "2017-04-15", "2017-04-16", "2017-04-22"],
-               #["2016-01-16", "2017-04-08", "2017-04-09", "2017-04-15"],
+               ["2016-01-16", "2017-04-08", "2017-04-16", "2017-04-22"],
                #["2016-01-16", "2017-04-01", "2017-04-02", "2017-04-09"],
                #["2016-01-16", "2017-03-04", "2017-03-05", "2017-03-11"],
-               ["2016-01-16", "2017-03-04", "2017-03-12", "2017-04-15"],
+               ##["2016-01-16", "2017-03-04", "2017-03-12", "2017-04-15"],
                ]
 splits = pocket_split_train.split_set(train, period_list, col)
 models = pocket_split_train.split_train(splits)
@@ -122,10 +122,12 @@ y_pred[y_pred < 1] = 1
 print("Validation score by six week:")
 pocket_full_of_validator.validate(train, model, col, "2017-03-05", "2017-04-22")
 print("Validation score by last week:")
-pocket_full_of_validator.validate(train, model, col, "2017-04-16", "2017-04-22")
+pocket_full_of_validator.validate(train, model, col, "2017-04-16", "2017-04-22",
+                                  save_model=True, save_name="../output/p1_all_0416_0422.csv")
 print("week by week")
 for period in pocket_periods.get_six_week_period_list():
     pocket_full_of_validator.validate(train, model, col, period[0], period[1], True)
+
 
 def do_detailed_analysis():
     print("analyzing error...")
@@ -156,3 +158,4 @@ public_lb = submission[submission["visit_date"] <= "2017-04-28"]
 print(public_lb.describe())
 golden_week = submission[(submission["visit_date"] >= "2017-04-29") & (submission["visit_date"] <= "2017-05-07")]
 print(golden_week.describe())
+print(golden_week.groupby("visit_date").describe())

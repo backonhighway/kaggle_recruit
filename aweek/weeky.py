@@ -19,7 +19,8 @@ predict = pd.read_csv('../output/w2_cwrrsr_predict.csv')
 #exit(0)
 
 # make input
-train = train[train["first_appear"] <= "2016-12-31"]
+#train = train[train["first_appear"] <= "2016-03-05"]
+#train = train[train["first_appear"] > "2016-06-01"]
 train['visitors'] = np.log1p(train['visitors'])
 # train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
 # test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
@@ -57,6 +58,7 @@ col = ['air_store_num', 'visitors', 'air_genre_num', 'air_area_num', "prefecture
        "air_r_sum0_shifted", "hpg_r_sum0_shifted", "air_dow_r_sum0_shifted", "hpg_dow_r_sum0_shifted",
        "total_r_sum0_shifted", "total_dow_r_sum0_shifted",
        "air_r_sum7", "hpg_r_sum7", "total_r_sum7",
+       #"air_r_sum7l", "hpg_r_sum7l", "total_r_sum7l",
        ]
 short_col = [
     'air_store_num', 'visitors', 'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
@@ -99,11 +101,11 @@ ez_col = [
 
 # fit and predict
 # model = custom_lgb.fit(train_input, test_input)
-period_list = [["2016-01-16", "2017-04-08", "2017-04-16", "2017-04-22"],
-               ["2016-01-16", "2017-04-01", "2017-04-09", "2017-04-15"],
+period_list = [["2016-01-16", "2017-04-15", "2017-04-16", "2017-04-22"],
+               #["2016-01-16", "2017-04-01", "2017-04-09", "2017-04-15"],
                #["2016-01-16", "2017-04-01", "2017-04-02", "2017-04-09"],
                #["2016-01-16", "2017-03-04", "2017-03-05", "2017-03-11"],
-               ["2016-01-16", "2017-03-04", "2017-03-12", "2017-03-19"],
+               #["2016-01-16", "2017-03-04", "2017-03-12", "2017-03-19"],
                ]
 splits = pocket_split_train.split_set(train, period_list, col)
 models = pocket_split_train.split_train(splits)
@@ -122,10 +124,12 @@ y_pred[y_pred < 1] = 1
 print("Validation score by six week:")
 pocket_full_of_validator.validate(train, model, col, "2017-03-05", "2017-04-22")
 print("Validation score by last week:")
-pocket_full_of_validator.validate(train, model, col, "2017-04-16", "2017-04-22")
+pocket_full_of_validator.validate(train, model, col, "2017-04-16", "2017-04-22",
+                                  save_model=True, save_name="../output/p1_w3_0416_0422.csv")
 print("week by week")
 for period in pocket_periods.get_six_week_period_list():
     pocket_full_of_validator.validate(train, model, col, period[0], period[1], True)
+
 
 def do_detailed_analysis():
     print("analyzing error...")
@@ -135,7 +139,6 @@ def do_detailed_analysis():
     bad_stores = store_list.nlargest(n=30, columns=["score"])
     print(bad_stores)
     bad_stores.to_csv("../output/bad_stores.csv")
-
 
 
 fi = pd.DataFrame({"name": model.feature_name(), "importance": model.feature_importance()})
@@ -158,3 +161,4 @@ print(public_lb.describe())
 print("golden week describe:")
 golden_week = submission[(submission["visit_date"] >= "2017-04-29") & (submission["visit_date"] <= "2017-05-07")]
 print(golden_week.describe())
+print(golden_week.groupby("visit_date").describe())

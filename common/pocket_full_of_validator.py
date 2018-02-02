@@ -1,9 +1,10 @@
 import custom_metrics
 import pandas as pd
+import numpy as np
 
 
 # validate
-def validate(test_df, model, col, period_from, period_to, verbose=False):
+def validate(test_df, model, col, period_from, period_to, verbose=False, save_model=False, save_name=None):
     validate_data = test_df[(test_df['visit_date'] >= period_from) & (test_df["visit_date"] <= period_to)]
     if verbose:
         print("-" * 40)
@@ -15,6 +16,8 @@ def validate(test_df, model, col, period_from, period_to, verbose=False):
         print(pd.DataFrame(y_valid).describe())
     validation_score = custom_metrics.rmse(validate_data["visitors"], y_valid)
     print(validation_score)
+    if save_model:
+        save_prediction(validate_data, y_valid, save_name)
 
 
 def dow_analyze(test_df, model, col, period_from, period_to):
@@ -57,9 +60,25 @@ def store_analyze(test_df, model, col, period_from, period_to):
     return ret_df
 
 
-
 def day_by_day_analyze(test_df, model, col, period_from, period_to):
 
     days = pd.date_range(start=period_from, end=period_to, freq='D')
     for day in days:
         print("day=", day)
+
+
+def save_prediction(validate_data, y_predict, file_name):
+
+    actual_visitors = np.expm1(validate_data["visitors"])
+    y_predict_adjusted = np.expm1(y_predict)
+    y_predict_adjusted[y_predict_adjusted < 1] = 1
+
+    df = pd.DataFrame({
+        "air_store_id": validate_data["air_store_id"],
+        "visit_date": validate_data["visit_date"],
+        "actual_log": validate_data["visitors"],
+        "actual": actual_visitors,
+        "prediction": y_predict,
+        "predict_adjusted": y_predict_adjusted,
+    })
+    df.to_csv(file_name ,float_format='%.6f', index=False)
