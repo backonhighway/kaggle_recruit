@@ -56,6 +56,7 @@ data['as']["city"] = data['as']["air_area_name"].map(lambda x: str(x).split()[1]
 data['as']["prefecture_num"] = le.fit_transform(data['as']['prefecture'])
 data['as']["city_num"] = le.fit_transform(data['as']['city'])
 
+
 train = pd.merge(data['train'], data['hol'], how='left', on=['visit_date'])
 predict = pd.merge(data['predict'], data['hol'], how='left', on=['visit_date'])
 train = pd.merge(train, data['as'], how='left', on=['air_store_id'])
@@ -91,19 +92,34 @@ predict["first_appear"] = predict.groupby("air_store_num")["visit_date"].transfo
 train["log_visitors"] = np.log1p(train["visitors"])
 predict["log_visitors"] = np.log1p(predict["visitors"])
 
+
+def find_outliers(series, sigma):
+    # 2.4 = 1.7%, 2.7 = 0.7%, 3.0 = 0.24%
+    return (series - series.mean()) > sigma * series.std()
+
+
+train['is_outlier17'] = train.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'], 2.4)).values
+predict['is_outlier17'] = predict.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'], 2.4)).values
+train['is_outlier07'] = train.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'], 2.7)).values
+predict['is_outlier07'] = predict.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'], 2.7)).values
+train['is_outlier02'] = train.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'], 3.0)).values
+predict['is_outlier02'] = predict.groupby('air_store_id').apply(lambda g: find_outliers(g['visitors'], 3.0)).values
+
 train_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
              'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
              'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
              'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
              "next_dow", "next_is_hol", "dowh", "dows", "day",
-             "log_visitors", "first_appear"
+             "log_visitors", "first_appear",
+             "is_outlier17", "is_outlier07", "is_outlier02",
              ]
 predict_col = ['id', 'air_store_id', 'air_store_num', 'visitors', 'visit_date', 'dow', 'day_delta',
                'year', 'month', 'prev_week', 'week', 'prev_month', 'prev_month_y', 'prev_month_m',
                'week_hols', 'next_week_hols', 'prev_week_hols', 'holiday_flg',
                'air_genre_num', 'air_area_num', "prefecture_num", "city_num",
                "next_dow", 'next_is_hol', "dowh", "dows", "day",
-               "log_visitors", "first_appear"
+               "log_visitors", "first_appear",
+               "is_outlier17", "is_outlier07", "is_outlier02",
                ]
 
 # print(train.head())

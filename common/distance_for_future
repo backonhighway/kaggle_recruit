@@ -1,0 +1,42 @@
+def vectorized_haversine(x_lats, y_lats, x_longs, y_longs):
+    radius = 6371
+    lats1 = x_lats[:, None]
+    lats2 = y_lats[None, :]
+
+    longs1 = x_longs[:, None]
+    longs2 = y_longs[None, :]
+
+    dlat=np.radians(lats2 - lats1)
+    dlon=np.radians(longs2 - longs1)
+    a = np.sin(dlat/2) * np.sin(dlat/2) + np.cos(np.radians(lats1)) \
+        * np.cos(np.radians(lats2)) * np.sin(dlon/2) * np.sin(dlon/2)
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
+    d = radius * c
+    return d
+
+
+def useless():
+    as_lats = np.array(data['as']['latitude'])
+    as_longs = np.array(data['as']['longitude'])
+
+    hs_lats = np.array(data['hs']['latitude'])
+    hs_longs = np.array(data['hs']['longitude'])
+
+    all_lats = np.concatenate([as_lats, hs_lats])
+    all_longs = np.concatenate([as_longs, hs_longs])
+    dist = vectorized_haversine(as_lats, all_lats, as_longs, all_longs)
+    kms = [1 , 2, 5, 10, 20]
+    for km in kms:
+        data['as'][f'rest{km}'] = np.sum(dist < km, 1)
+
+    genres = data['as'].air_genre_name.values
+    comp_kms = []
+    for km in kms:
+        comp_km = []
+        for i in range(len(genres)):
+            msk = genres == genres[i]
+            comp_km.append(np.sum(dist[:, :829][i, msk] < km) - 1)
+        comp_kms.append(comp_km)
+
+    comp_df = pd.DataFrame(np.array(comp_kms).T, columns=[f'comp{km}' for km in kms])
+    data['as'] = pd.concat([data['as'], comp_df], 1)

@@ -65,16 +65,18 @@ short_col = [
     'air_store_num', 'visitors', 'air_genre_num', "air_area_num",
     'year', 'month', #"week",
     "moving_mean_0", "moving_median_0", "moving_max_0", "moving_std_0",
+    #"moving_mean_05", "moving_median_05", "moving_max_05", "moving_std_05",
     "moving_mean_1", "moving_median_1", "moving_max_1", "moving_std_1",
     "moving_mean_3", "moving_median_3", "moving_max_3", "moving_std_3",
     "moving_mean_13", "moving_median_13", "moving_max_13", "moving_std_13",
     #"moving_min_0", "moving_min_1", "moving_min_3", "moving_min_13",  # small
     "dow_moving_mean_0", "dow_moving_median_0", "dow_moving_max_0", "dow_moving_std_0",
+    #"dow_moving_mean_05", "dow_moving_median_05", "dow_moving_max_05", "dow_moving_std_05",
     "dow_moving_mean_1", "dow_moving_median_1", "dow_moving_max_1", "dow_moving_std_1",
     "dow_moving_mean_3", "dow_moving_median_3", "dow_moving_max_3", "dow_moving_std_3",
     "dow_moving_mean_13", "dow_moving_median_13", "dow_moving_max_13", "dow_moving_std_13",
-    #"change_mean_0_1", "change_mean_0_3", "change_mean_0_13",  # small
-    #"change_mean_1_3", "change_mean_1_13", "change_mean_3_13",  # small
+    "change_mean_0_1", "change_mean_0_3", "change_mean_0_13",  # small
+    "change_mean_1_3", "change_mean_1_13", "change_mean_3_13",  # small
     #"dow_change_mean_0_1", "dow_change_mean_0_3", "dow_change_mean_0_13",
     #"dow_change_mean_1_3", "dow_change_mean_1_13", "dow_change_mean_3_13",
     "moving_skew_0", "moving_skew_1", "moving_skew_3", "moving_skew_13",
@@ -143,16 +145,32 @@ y_pred = model.predict(x_pred, num_iteration=model.best_iteration)
 y_pred = np.expm1(y_pred)
 y_pred[y_pred < 1] = 1
 
-fi = pd.DataFrame({"name": model.feature_name(), "importance": model.feature_importance()})
-fi = fi.sort_values(by="importance", ascending=False)
-print(fi)
-exit(0)
-print("Validation score by golden week:")
-pocket_full_of_validator.validate(train, models[0], col, "2016-04-29", "2016-05-07")
-pocket_full_of_validator.validate(train, models[1], col, "2016-04-29", "2016-05-07")
-pocket_full_of_validator.validate(train, models[0], col, "2016-05-08", "2016-05-14")
-pocket_full_of_validator.validate(train, models[1], col, "2016-05-08", "2016-05-14")
-exit(0)
+
+def save_models():
+    pocket_full_of_validator.validate(train, model[0], col, "2017-04-16", "2017-04-22",
+                                      save_model=True, save_name="../output/p1_w2_0416_0422.csv")
+    pocket_full_of_validator.validate(train, model[1], col, "2017-04-09", "2017-04-15",
+                                      save_model=True, save_name="../output/p1_w2_0409_0415.csv")
+    pocket_full_of_validator.validate(train, model[2], col, "2017-04-02", "2017-04-09",
+                                      save_model=True, save_name="../output/p1_w2_0402_0409.csv")
+    pocket_full_of_validator.validate(train, model[3], col, "2017-03-12", "2017-03-19",
+                                      save_model=True, save_name="../output/p1_w2_0312_0319.csv")
+
+
+
+def temp():
+    fi = pd.DataFrame({"name": model.feature_name(), "importance": model.feature_importance()})
+    fi = fi.sort_values(by="importance", ascending=False)
+    print(fi)
+    exit(0)
+    print("Validation score by golden week:")
+    pocket_full_of_validator.validate(train, models[0], col, "2016-04-29", "2016-05-07")
+    pocket_full_of_validator.validate(train, models[1], col, "2016-04-29", "2016-05-07")
+    pocket_full_of_validator.validate(train, models[0], col, "2016-05-08", "2016-05-14")
+    pocket_full_of_validator.validate(train, models[1], col, "2016-05-08", "2016-05-14")
+    exit(0)
+
+
 print("Validation score by six week:")
 pocket_full_of_validator.validate(train, model, col, "2017-03-05", "2017-04-22")
 print("Validation score by last week:")
