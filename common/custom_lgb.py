@@ -8,10 +8,10 @@ def fit(train_data, test_data):
     x_test = test_data.drop('visitors', axis=1)
 
     cat_col = ["air_store_num", "air_genre_num", "air_area_num",
-               #"dows",
                "dow", "dowh", "dows",
-               "year", "month", "week",
-               "prefecture_num", "city_num",]
+               "year", "month", #"week",
+               ]
+               #"prefecture_num", "city_num",]
 
     lgb_train = lgb.Dataset(x_train, y_train)
     lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train)
@@ -22,7 +22,7 @@ def fit(train_data, test_data):
         'boosting': 'gbdt',
         'objective': 'regression',
         'metric': 'rmse',
-        'feature_fraction': .3,
+        'feature_fraction': .7,
         'seed': 99,
         'verbose': 0
     }

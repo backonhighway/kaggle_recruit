@@ -3,7 +3,7 @@ import numpy as np
 import lolpy
 
 
-SHIFT_WEEKS = 5
+SHIFT_WEEKS = 1
 
 
 def prepare(df):
@@ -133,8 +133,8 @@ def get_total_info(df):
 air_reserve_df = pd.read_csv('../input/air_reserve.csv')
 hpg_reserve_df = pd.read_csv('../input/hpg_reserve.csv')
 relation_df = pd.read_csv('../input/store_id_relation.csv')
-train = pd.read_csv('../output/w5_cwrrs_train.csv')
-predict = pd.read_csv('../output/w5_cwrrs_predict.csv')
+train = pd.read_csv('../output/w1_cwrrs_train.csv')
+predict = pd.read_csv('../output/w1_cwrrs_predict.csv')
 print("Loaded data.")
 hpg_reserve_df = pd.merge(hpg_reserve_df, relation_df, how='inner', on=['hpg_store_id'])
 #air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
@@ -180,8 +180,8 @@ train = joined[joined["visit_date"] < "2017-04-23"]
 predict = joined[joined["visit_date"] >= "2017-04-23"]
 
 print("output to csv...")
-train.to_csv('../output/w5_cwrrsr_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/w5_cwrrsr_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/w1_cwrrsr_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/w1_cwrrsr_predict.csv',float_format='%.6f', index=False)
 
 
 
