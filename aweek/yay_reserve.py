@@ -3,7 +3,7 @@ import numpy as np
 import lolpy
 
 
-SHIFT_WEEKS = 2
+SHIFT_WEEKS = 5
 
 
 def prepare(df):
@@ -130,11 +130,12 @@ def get_total_info(df):
     return df
 
 
+file_prefix = "../output/w5_"
 air_reserve_df = pd.read_csv('../input/air_reserve.csv')
 hpg_reserve_df = pd.read_csv('../input/hpg_reserve.csv')
 relation_df = pd.read_csv('../input/store_id_relation.csv')
-train = pd.read_csv('../output/w2_cwrrs_train.csv')
-predict = pd.read_csv('../output/w2_cwrrs_predict.csv')
+train = pd.read_csv(file_prefix + "cwrrs_train.csv")
+predict = pd.read_csv(file_prefix + "cwrrs_predict.csv")
 print("Loaded data.")
 hpg_reserve_df = pd.merge(hpg_reserve_df, relation_df, how='inner', on=['hpg_store_id'])
 #air_reserve_df = air_reserve_df[air_reserve_df["air_store_id"] == "air_6b15edd1b4fbb96a"]
@@ -147,8 +148,8 @@ air_reserve_df = feature(air_reserve_df)
 hpg_reserve_df = feature(hpg_reserve_df)
 print("Done reserve engineer")
 
-print(air_reserve_df.describe())
-print(hpg_reserve_df.describe())
+# print(air_reserve_df.describe())
+# print(hpg_reserve_df.describe())
 air_reserve_df = rename_col(air_reserve_df, "air_")
 hpg_reserve_df = rename_col(hpg_reserve_df, "hpg_")
 # print(air_reserve_df.head())
@@ -173,15 +174,15 @@ joined = get_total_info(joined)
 
 # pd.set_option('display.width', 240)
 # pd.set_option('display.max_columns', None)
-print(joined.describe())
+# print(joined.describe())
 
 
 train = joined[joined["visit_date"] < "2017-04-23"]
 predict = joined[joined["visit_date"] >= "2017-04-23"]
 
 print("output to csv...")
-train.to_csv('../output/w2_cwrrsr_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/w2_cwrrsr_predict.csv',float_format='%.6f', index=False)
+train.to_csv(file_prefix + 'cwrrsr_train.csv',float_format='%.6f', index=False)
+predict.to_csv(file_prefix + 'cwrrsr_predict.csv',float_format='%.6f', index=False)
 
 
 

@@ -19,8 +19,9 @@ predict = pd.read_csv('../output/w2_cwrrsr_predict.csv')
 #exit(0)
 
 # make input
-#train = train[train["first_appear"] <= "2016-03-05"]
-#train = train[train["visit_date"] > "2016-06-01"]
+#train = train[train["first_appear"] > "2016-03-05"]
+train = train[train["first_appear"] <= "2016-03-05"]
+#train = train[train["visit_date"] >= "2016-06-01"]
 train['visitors'] = np.log1p(train['visitors'])
 # train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
 # test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
@@ -89,7 +90,7 @@ short_col = [
     "air_r_sum7", "hpg_r_sum7",
     #"air_r_date_diff_mean7", "hpg_r_date_diff_mean7",  # small
     #"air_r_date_diff_mean0_shifted", "hpg_r_date_diff_mean0_shifted",  # small
-    # "air_r_sum7l", "hpg_r_sum7l", "total_r_sum7l",
+    #"air_r_sum7l", "hpg_r_sum7l", "total_r_sum7l",
 ]
 col = short_col
 ez_col = [
@@ -125,7 +126,7 @@ ez_col = [
 # model = custom_lgb.fit(train_input, test_input)
 period_list = [["2016-01-16", "2017-04-08", "2017-04-16", "2017-04-22"],
                ["2016-01-16", "2017-04-01", "2017-04-09", "2017-04-15"],
-               ["2016-01-16", "2017-03-26", "2017-04-02", "2017-04-09"],
+               ["2016-01-16", "2017-03-26", "2017-04-02", "2017-04-08"],
                #["2016-01-16", "2016-04-17", "2016-04-18", "2016-04-24"],
                ["2016-01-16", "2017-03-04", "2017-03-12", "2017-03-19"],
                ]
@@ -147,15 +148,14 @@ y_pred[y_pred < 1] = 1
 
 
 def save_models():
-    pocket_full_of_validator.validate(train, model[0], col, "2017-04-16", "2017-04-22",
-                                      save_model=True, save_name="../output/p1_w2_0416_0422.csv")
-    pocket_full_of_validator.validate(train, model[1], col, "2017-04-09", "2017-04-15",
-                                      save_model=True, save_name="../output/p1_w2_0409_0415.csv")
-    pocket_full_of_validator.validate(train, model[2], col, "2017-04-02", "2017-04-09",
-                                      save_model=True, save_name="../output/p1_w2_0402_0409.csv")
-    pocket_full_of_validator.validate(train, model[3], col, "2017-03-12", "2017-03-19",
-                                      save_model=True, save_name="../output/p1_w2_0312_0319.csv")
-
+    pocket_full_of_validator.validate(train, models[0], col, "2017-04-16", "2017-04-22",
+                                      save_model=True, save_name="../output/p1_w2_0416_0422_good.csv")
+    pocket_full_of_validator.validate(train, models[1], col, "2017-04-09", "2017-04-15",
+                                      save_model=True, save_name="../output/p1_w2_0409_0415_good.csv")
+    pocket_full_of_validator.validate(train, models[2], col, "2017-04-02", "2017-04-09",
+                                      save_model=True, save_name="../output/p1_w2_0402_0408_good.csv")
+    pocket_full_of_validator.validate(train, models[3], col, "2017-03-12", "2017-03-19",
+                                      save_model=True, save_name="../output/p1_w2_0312_0319_good.csv")
 
 
 def temp():
@@ -171,6 +171,7 @@ def temp():
     exit(0)
 
 
+save_models()
 print("Validation score by six week:")
 pocket_full_of_validator.validate(train, model, col, "2017-03-05", "2017-04-22")
 print("Validation score by last week:")
