@@ -3,7 +3,7 @@ import numpy as np
 import lolpy
 
 
-SHIFT_WEEKS = 2
+SHIFT_WEEKS = 5
 
 
 def prepare(df):
@@ -130,7 +130,7 @@ def get_total_info(df):
     return df
 
 
-file_prefix = "../output/outlier_w2_"
+file_prefix = "../output/outlier_w5_"
 air_reserve_df = pd.read_csv('../input/air_reserve.csv')
 hpg_reserve_df = pd.read_csv('../input/hpg_reserve.csv')
 relation_df = pd.read_csv('../input/store_id_relation.csv')

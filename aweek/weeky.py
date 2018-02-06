@@ -30,7 +30,7 @@ short_col = [
     "moving_mean_3", "moving_median_3", "moving_max_3", "moving_std_3",
     "moving_mean_13", "moving_median_13", "moving_max_13", "moving_std_13",
     #"moving_min_0", "moving_min_1", "moving_min_3", "moving_min_13",  # small
-    #"dow_moving_mean_0", "dow_moving_median_0", "dow_moving_max_0", "dow_moving_std_0",
+    "dow_moving_mean_0", "dow_moving_median_0", "dow_moving_max_0", "dow_moving_std_0",
     #"dow_moving_mean_05", "dow_moving_median_05", "dow_moving_max_05", "dow_moving_std_05",
     "dow_moving_mean_1", "dow_moving_median_1", "dow_moving_max_1", "dow_moving_std_1",
     "dow_moving_mean_3", "dow_moving_median_3", "dow_moving_max_3", "dow_moving_std_3",

@@ -17,7 +17,7 @@ def fit(train_data, test_data):
     lgb_train = lgb.Dataset(x_train, y_train)
     lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train)
     params = {
-        'learning_rate': 0.05,
+        'learning_rate': 0.02,
         'num_leaves': 63,
 #        'lambda_l1': 16.7,
         'boosting': 'gbdt',
@@ -30,7 +30,7 @@ def fit(train_data, test_data):
     print('Start training...')
     gbm = lgb.train(params,
                     lgb_train,
-                    num_boost_round=200,
+                    num_boost_round=5000,
                     valid_sets=lgb_eval,
                     verbose_eval=50,
                     early_stopping_rounds=200,

@@ -101,21 +101,21 @@ d14_col = base_res_col + ["air_r_sum14", "hpg_r_sum14"]
 weekly_col = base_res_col + ["air_r_sum7", "hpg_r_sum7"]
 
 # make submissions
-w1_sub = get_submission("../output/w1_", weekly_col)
-w2_sub = get_submission("../output/w2_", weekly_col)
-w3_sub = get_submission("../output/w3_", weekly_col)
-w4_sub = get_submission("../output/w4_", weekly_col)
-w5_sub = get_submission("../output/w5_", weekly_col)
+w1_sub = get_submission("../output/outlier_w1_", weekly_col)
+w2_sub = get_submission("../output/outlier_w2_", weekly_col)
+w3_sub = get_submission("../output/outlier_w3_", weekly_col)
+w4_sub = get_submission("../output/outlier_w4_", weekly_col)
+w5_sub = get_submission("../output/outlier_w5_", weekly_col)
 print("Start making daily...")
 print("-"*30)
-d7_sub = get_submission("../output/w2_", d7_col)
-d8_sub = get_submission("../output/w2_", d8_col)
-d9_sub = get_submission("../output/w2_", d9_col)
-d10_sub = get_submission("../output/w2_", d10_col)
-d11_sub = get_submission("../output/w2_", d11_col)
-d12_sub = get_submission("../output/w2_", d12_col)
-d13_sub = get_submission("../output/w2_", d13_col)
-d14_sub = get_submission("../output/w2_", d14_col)
+d7_sub = get_submission("../output/outlier_w2_", d7_col)
+d8_sub = get_submission("../output/outlier_w2_", d8_col)
+d9_sub = get_submission("../output/outlier_w2_", d9_col)
+d10_sub = get_submission("../output/outlier_w2_", d10_col)
+d11_sub = get_submission("../output/outlier_w2_", d11_col)
+d12_sub = get_submission("../output/outlier_w2_", d12_col)
+d13_sub = get_submission("../output/outlier_w2_", d13_col)
+d14_sub = get_submission("../output/outlier_w2_", d14_col)
 
 
 def take_df(target_df_to_cut, day):
@@ -161,12 +161,11 @@ print(w2_final.describe())
 sub_list = [w1_sub, w2_final, w3_sub, w4_sub, w5_sub]
 final_sub = pd.concat(sub_list)
 print("final submission is:")
-print(final_sub.describe())
-print(final_sub.head(20))
+print(final_sub.groupby("visit_date")["visitors"].describe())
 
 submission_col = ["id", "visitors"]
 final_sub = final_sub[submission_col]
-final_sub.to_csv('../output/submission_final_daily.csv', float_format='%.6f', index=False)
+final_sub.to_csv('../output/submission_final_daily_outlier.csv', float_format='%.6f', index=False)
 
 
 

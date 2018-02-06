@@ -7,7 +7,7 @@ import time
 import lolpy
 
 
-SHIFT_WEEKS = 2
+SHIFT_WEEKS = 5
 
 
 def make_ez_stats(df, window_days, dow_window_days, suffix):
@@ -140,6 +140,6 @@ predict = joined[joined["visit_date"] >= "2017-04-23"]
 # print(predict.head())
 
 print("output to csv...")
-train.to_csv('../output/outlier_w2_cwrrs_train.csv',float_format='%.6f', index=False)
-predict.to_csv('../output/outlier_w2_cwrrs_predict.csv',float_format='%.6f', index=False)
+train.to_csv('../output/outlier_w5_cwrrs_train.csv',float_format='%.6f', index=False)
+predict.to_csv('../output/outlier_w5_cwrrs_predict.csv',float_format='%.6f', index=False)
 
