@@ -10,35 +10,30 @@ import pocket_periods
 
 
 # load data
-train = pd.read_csv('../output/w2_cwrrsr_train.csv')
-predict = pd.read_csv('../output/w2_cwrrsr_predict.csv')
+train = pd.read_csv('../output/outlier_w2_cwrrsr_train.csv')
+predict = pd.read_csv('../output/outlier_w2_cwrrsr_predict.csv')
 
 # make input
 #train = train[train["first_appear"] > "2016-03-05"]
 #train = train[train["first_appear"] <= "2016-03-05"]
 #train = train[train["visit_date"] >= "2016-06-01"]
 train['visitors'] = np.log1p(train['visitors'])
-# train_input = train[ (train['visit_date'] >= '2016-01-01') & (train['visit_date'] < '2016-11-28') ].reset_index(drop=True)
-# test_input = train[ (train['visit_date'] >= '2017-01-16') & (train['visit_date'] < '2017-03-05') ].reset_index(drop=True)
 
 short_col = [
     'air_store_num', 'visitors', 'air_genre_num', "air_area_num",
     'year', 'month', #"week",
     "moving_mean_0", "moving_median_0", "moving_max_0", "moving_std_0",
-    #"moving_mean_05", "moving_median_05", "moving_max_05", "moving_std_05",
     "moving_mean_1", "moving_median_1", "moving_max_1", "moving_std_1",
     "moving_mean_3", "moving_median_3", "moving_max_3", "moving_std_3",
     "moving_mean_13", "moving_median_13", "moving_max_13", "moving_std_13",
     #"moving_min_0", "moving_min_1", "moving_min_3", "moving_min_13",  # small
-    #"dow_moving_mean_0", "dow_moving_median_0", "dow_moving_max_0", "dow_moving_std_0",
+    "dow_moving_mean_0", "dow_moving_median_0", "dow_moving_max_0", "dow_moving_std_0",
     #"dow_moving_mean_05", "dow_moving_median_05", "dow_moving_max_05", "dow_moving_std_05",
     "dow_moving_mean_1", "dow_moving_median_1", "dow_moving_max_1", "dow_moving_std_1",
     "dow_moving_mean_3", "dow_moving_median_3", "dow_moving_max_3", "dow_moving_std_3",
     "dow_moving_mean_13", "dow_moving_median_13", "dow_moving_max_13", "dow_moving_std_13",
     "change_mean_0_1", "change_mean_0_3", "change_mean_0_13",  # small
     "change_mean_1_3", "change_mean_1_13", "change_mean_3_13",  # small
-    #"dow_change_mean_0_1", "dow_change_mean_0_3", "dow_change_mean_0_13",
-    #"dow_change_mean_1_3", "dow_change_mean_1_13", "dow_change_mean_3_13",
     "moving_skew_0", "moving_skew_1", "moving_skew_3", "moving_skew_13",
     "dow_moving_skew_1", "dow_moving_skew_3", "dow_moving_skew_13",
     'dow', 'dowh', 'dows', 'holiday_flg', 'week_hols', 'next_week_hols', 'prev_week_hols', "next_is_hol",
@@ -49,15 +44,18 @@ short_col = [
     "air_r_sum7", "hpg_r_sum7",
     #"air_r_date_diff_mean7", "hpg_r_date_diff_mean7",  # small
     #"air_r_date_diff_mean0_shifted", "hpg_r_date_diff_mean0_shifted",  # small
-    #"air_r_sum7l", "hpg_r_sum7l", #"total_r_sum7l",
+    #"air_r_sum7l", "hpg_r_sum7l", "total_r_sum7l",
 ]
 col = short_col
 
 
+# train_input = train_input[col]
+# test_input = test_input[col]
 
-#train = train[pd.notnull(train["moving_mean_0"])]
-print(train["visitors"].describe())
-
+# print(train_input.head())
+# print(test_input.head())
+# print(x_pred.head())
+# print('-' * 30)
 
 # fit and predict
 # model = custom_lgb.fit(train_input, test_input)
@@ -85,15 +83,14 @@ y_pred[y_pred < 1] = 1
 
 
 def save_models():
-    suffix="_no_res.csv"
     pocket_full_of_validator.validate(train, models[0], col, "2017-04-16", "2017-04-22",
-                                      save_model=True, save_name="../output/p1_w2_0416_0422"+suffix)
+                                      save_model=True, save_name="../output/p1_w2_0416_0422_out.csv")
     pocket_full_of_validator.validate(train, models[1], col, "2017-04-09", "2017-04-15",
-                                      save_model=True, save_name="../output/p1_w2_0409_0415"+suffix)
+                                      save_model=True, save_name="../output/p1_w2_0409_0415_out.csv")
     pocket_full_of_validator.validate(train, models[2], col, "2017-04-02", "2017-04-08",
-                                      save_model=True, save_name="../output/p1_w2_0402_0408"+suffix)
+                                      save_model=True, save_name="../output/p1_w2_0402_0408_out.csv")
     pocket_full_of_validator.validate(train, models[3], col, "2017-03-12", "2017-03-19",
-                                      save_model=True, save_name="../output/p1_w2_0312_0319"+suffix)
+                                      save_model=True, save_name="../output/p1_w2_0312_0319_out.csv")
 
 
 def temp():
@@ -109,7 +106,7 @@ def temp():
     exit(0)
 
 
-#save_models()
+save_models()
 print("Validation score by six week:")
 pocket_full_of_validator.validate(train, model, col, "2017-03-05", "2017-04-22")
 print("Validation score by last week:")
@@ -147,6 +144,6 @@ submission["visit_date"] = submission['id'].map(lambda x: str(x).split('_')[2])
 public_lb = submission[submission["visit_date"] <= "2017-04-28"]
 print(public_lb.describe())
 print("golden week describe:")
-golden_week = submission[(submission["visit_date"] >= "2017-04-29") & (submission["visit_date"] <= "2017-05-08")]
+golden_week = submission[(submission["visit_date"] >= "2017-04-29") & (submission["visit_date"] <= "2017-05-07")]
 print(golden_week.describe())
-print(golden_week.groupby("visit_date")["visitors"].describe())
+print(golden_week.groupby("visit_date").describe())
